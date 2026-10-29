@@ -1,3 +1,4 @@
+
 #include <iostream>
 #include <string>
 using namespace std;
@@ -5,59 +6,204 @@ using namespace std;
 class Node {
 public:
     string title, artist;
+    float duration;
     Node* next;
-    Node(string t, string a) : title(t), artist(a), next(nullptr) {}
+
+    Node(string t, string a, float d) {
+        title = t;
+        artist = a;
+        duration = d;
+        next = nullptr;
+    }
 };
 
 class Playlist {
     Node* head;
+
 public:
-    Playlist() : head(nullptr) {}
-    ~Playlist() { while (head) { Node* t = head; head = head->next; delete t; } }
-
-    void addSong(string title, string artist) {
-        Node* n = new Node(title, artist);
-        if (!head) head = n;
-        else { Node* p = head; while (p->next) p = p->next; p->next = n; }
-        cout << "Song added.\n";
+    Playlist() {
+        head = nullptr;
     }
 
-    void removeSong(string title) {
-        Node *p = head, *prev = nullptr;
-        while (p && p->title != title) { prev = p; p = p->next; }
-        if (!p) { cout << "Song not found.\n"; return; }
-        if (prev) prev->next = p->next; else head = p->next;
-        delete p;
-        cout << "Song removed.\n";
+    ~Playlist() {
+        while (head != nullptr) {
+            Node* temp = head;
+            head = head->next;
+            delete temp;
+        }
     }
 
-    void display() {
-        if (!head) { cout << "Playlist is empty.\n"; return; }
-        for (Node* p = head; p; p = p->next)
-            cout << p->title << " - " << p->artist << '\n';
+    void addSong() {
+        string title, artist;
+        float duration;
+
+        cin.ignore(10000, '\n');
+
+        cout << "Enter song title: ";
+        getline(cin, title);
+
+        cout << "Enter artist name: ";
+        getline(cin, artist);
+
+        cout << "Enter song duration in minutes: ";
+        cin >> duration;
+
+        if (duration <= 0) {
+            cout << "Invalid duration.\n";
+            return;
+        }
+
+        Node* newNode = new Node(title, artist, duration);
+
+        if (head == nullptr) {
+            head = newNode;
+        } else {
+            Node* temp = head;
+
+            while (temp->next != nullptr) {
+                temp = temp->next;
+            }
+
+            temp->next = newNode;
+        }
+
+        cout << "Song added successfully!\n";
     }
 
-    void playSong(string title) {
-        for (Node* p = head; p; p = p->next)
-            if (p->title == title) { cout << "Playing: " << p->title << " by " << p->artist << '\n'; return; }
-        cout << "Song not found.\n";
+    void removeSong() {
+        if (head == nullptr) {
+            cout << "Playlist is empty.\n";
+            return;
+        }
+
+        string title;
+        cin.ignore(10000, '\n');
+
+        cout << "Enter the title of the song to remove: ";
+        getline(cin, title);
+
+        Node* temp = head;
+        Node* prev = nullptr;
+
+        while (temp != nullptr && temp->title != title) {
+            prev = temp;
+            temp = temp->next;
+        }
+
+        if (temp == nullptr) {
+            cout << "Song not found.\n";
+            return;
+        }
+
+        if (prev == nullptr) {
+            head = temp->next;
+        } else {
+            prev->next = temp->next;
+        }
+
+        delete temp;
+        cout << "Song removed successfully!\n";
+    }
+
+    void displayPlaylist() {
+        if (head == nullptr) {
+            cout << "Playlist is empty.\n";
+            return;
+        }
+
+        Node* temp = head;
+        int count = 1;
+
+        cout << "\n========== MUSIC PLAYLIST ==========\n";
+
+        while (temp != nullptr) {
+            cout << "\nSong " << count++ << '\n';
+            cout << "Title: " << temp->title << '\n';
+            cout << "Artist: " << temp->artist << '\n';
+            cout << "Duration: " << temp->duration << " minutes\n";
+
+            temp = temp->next;
+        }
+
+        cout << "\n====================================\n";
+    }
+
+    void playSong() {
+        if (head == nullptr) {
+            cout << "Playlist is empty.\n";
+            return;
+        }
+
+        string title;
+        cin.ignore(10000, '\n');
+
+        cout << "Enter the title of the song to play: ";
+        getline(cin, title);
+
+        Node* temp = head;
+
+        while (temp != nullptr) {
+            if (temp->title == title) {
+                cout << "\nNow Playing...\n";
+                cout << "Title: " << temp->title << '\n';
+                cout << "Artist: " << temp->artist << '\n';
+                cout << "Duration: " << temp->duration << " minutes\n";
+                return;
+            }
+
+            temp = temp->next;
+        }
+
+        cout << "Song not found in the playlist.\n";
     }
 };
 
 int main() {
-    Playlist p;
-    int ch; string title, artist;
+    Playlist playlist;
+    int choice;
+
     do {
-        cout << "\n1.Add Song 2.Remove Song 3.Display Playlist 4.Play Song 5.Exit\nChoice: ";
-        cin >> ch;
-        if (ch == 1) {
-            cout << "Title (one word): "; cin >> title;
-            cout << "Artist (one word): "; cin >> artist;
-            p.addSong(title, artist);
-        } else if (ch == 2) {
-            cout << "Title to remove: "; cin >> title; p.removeSong(title);
-        } else if (ch == 3) p.display();
-        else if (ch == 4) { cout << "Title to play: "; cin >> title; p.playSong(title); }
-    } while (ch != 5);
+        cout << "\n========== MUSIC PLAYER ==========\n";
+        cout << "1. Add Song\n";
+        cout << "2. Remove Song\n";
+        cout << "3. Display Playlist\n";
+        cout << "4. Play Specific Song\n";
+        cout << "5. Exit\n";
+        cout << "Enter your choice: ";
+
+        if (!(cin >> choice)) {
+            cin.clear();
+            cin.ignore(10000, '\n');
+            cout << "Invalid input. Enter a number.\n";
+            continue;
+        }
+
+        switch (choice) {
+        case 1:
+            playlist.addSong();
+            break;
+
+        case 2:
+            playlist.removeSong();
+            break;
+
+        case 3:
+            playlist.displayPlaylist();
+            break;
+
+        case 4:
+            playlist.playSong();
+            break;
+
+        case 5:
+            cout << "Exiting music player. Goodbye!\n";
+            break;
+
+        default:
+            cout << "Invalid choice. Try again.\n";
+        }
+
+    } while (choice != 5);
+
     return 0;
 }
